@@ -1,0 +1,56 @@
+
+networks:
+  patient_ms-network:
+    driver: bridge
+
+volumes:
+  product_postgres_data:
+    driver: local
+
+services:
+  product-db:
+    image: postgres:14.1
+    container_name: product-db
+    restart: always
+    volumes:
+      - ../init-scripts/product-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - product_postgres_data:/var/lib/postgresql/data
+    env_file:
+      - ../env/product-ms.env.dev
+    environment:
+      POSTGRES_DB: product
+      POSTGRES_USER: product
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-product123}
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5434:5432"
+    networks:
+      - patient_ms-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U product"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  product-ms:
+    build:
+      context: ../../
+      dockerfile: infra/docker/product-ms/Dockerfile
+      args:
+        PROFILE: local
+    container_name: product-service
+    restart: always
+    ports:
+      - "8085:8085"
+    networks:
+      - patient_ms-network
+    env_file:
+      - ../env/product-ms.env.dev
+    depends_on:
+      - product-db
+    entrypoint: ["bash", "/app/entrypoint.sh"]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8085/actuator/health || exit 1"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
