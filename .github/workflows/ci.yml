@@ -1,13 +1,14 @@
-name: CI - Products MS
+name: CI - Product MS
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "develop" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "develop" ]
 
 jobs:
   build:
+    name: Build and test Java 17 project
     runs-on: ubuntu-latest
 
     steps:
@@ -20,8 +21,8 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+      - name: Grant execute permissions to gradlew
+        run: chmod +x ./gradlew
 
-      - name: Build with Gradle (skip tests temporal)
-        run: ./gradlew clean build -x test --info
+      - name: Build with Gradle
+        run: ./gradlew clean build --info
