@@ -5,17 +5,14 @@ spring:
   profiles:
     active: dev
 
----
-
-spring:
   config:
     activate:
       on-profile: dev
 
   datasource:
-    url: jdbc:postgresql://product-db:5432/product
-    username: product
-    password: product123
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
       pool-name: HikariPool
@@ -38,16 +35,16 @@ management:
       exposure:
         include: health,info
 
+
 eureka:
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${HOSTNAME}:${server.port}
   client:
     service-url:
       defaultZone: http://discovery-service:8761/eureka/
     register-with-eureka: true
     fetch-registry: true
-
-  instance:
-    prefer-ip-address: true
-    hostname: localhost
 
 
 server:
