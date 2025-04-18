@@ -15,15 +15,7 @@ public class ProductMsApplication {
         SpringApplication.run(ProductMsApplication.class, args);
     }
 
-    @Bean
-    public CommandLineRunner runner(ApplicationContext ctx) {
-        return args -> {
-            System.out.println("Beans cargados por Spring:");
-            Arrays.stream(ctx.getBeanDefinitionNames())
-                    .sorted()
-                    .forEach(System.out::println);
-        };
-    }
+
 }
 
 

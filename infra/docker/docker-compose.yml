@@ -48,10 +48,29 @@ services:
     depends_on:
       product-db:
         condition: service_healthy
+      discovery-service:
+        condition: service_healthy
     entrypoint: [ "bash", "/app/entrypoint.sh" ]
     healthcheck:
       test: [ "CMD-SHELL", "curl -f http://localhost:8085/actuator/health || exit 1" ]
       interval: 10s
       retries: 5
       start_period: 30s
+  discovery-service:
+    image: discovery-service:latest
+    container_name: discovery-service
+    build:
+      context: ../../../discovery-service
+      dockerfile: Dockerfile
+    ports:
+      - "8761:8761"
+    networks:
+      - patient_ms-network
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8761/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    env_file:
+      - ../env/discovery-service.env.dev
 
